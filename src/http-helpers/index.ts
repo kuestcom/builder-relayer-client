@@ -27,10 +27,14 @@ export class HttpClient {
         method: string,
         options?: RequestOptions,
     ): Promise<AxiosResponse> {
-        if (options !== undefined) {
-            if (options.headers != undefined) {
-                options.headers["Access-Control-Allow-Credentials"] = true;
-            }
+        const headers = {
+            ...(options?.headers ?? {}),
+        } as AxiosRequestHeaders;
+        if (Object.keys(headers).length > 0) {
+            headers["Access-Control-Allow-Credentials"] = true;
+        }
+        if (options?.data !== undefined && headers["Content-Type"] === undefined && headers["content-type"] === undefined) {
+            headers["Content-Type"] = "application/json";
         }
 
         try {
@@ -38,7 +42,7 @@ export class HttpClient {
                 {
                     url: endpoint,
                     method: method,
-                    headers: options?.headers,
+                    headers: Object.keys(headers).length > 0 ? headers : undefined,
                     data: options?.data,
                     params: options?.params,
                 }
