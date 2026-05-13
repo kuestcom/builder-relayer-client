@@ -27,12 +27,12 @@ import {
 } from "./builder";
 import { sleep } from "./utils";
 import { ClientRelayerTransactionResponse } from "./response";
+import { ContractConfig, getContractConfig, isDepositWalletContractConfigValid } from "./config";
 import {
-    ContractConfig,
-    getContractConfig,
-    isDepositWalletContractConfigValid,
-} from "./config";
-import { CONFIG_UNSUPPORTED_ON_CHAIN, SIGNER_UNAVAILABLE } from "./errors";
+    BUILDER_CREDS_UNAVAILABLE,
+    CONFIG_UNSUPPORTED_ON_CHAIN,
+    SIGNER_UNAVAILABLE,
+} from "./errors";
 
 export class RelayClient {
     readonly relayerUrl: string;
@@ -61,7 +61,10 @@ export class RelayClient {
         }
     }
 
-    public async getNonce(signerAddress: string, signerType = TransactionType.WALLET): Promise<NoncePayload> {
+    public async getNonce(
+        signerAddress: string,
+        signerType = TransactionType.WALLET,
+    ): Promise<NoncePayload> {
         return this.send(GET_NONCE, GET, { params: { address: signerAddress, type: signerType } });
     }
 
@@ -70,16 +73,20 @@ export class RelayClient {
     }
 
     public async getTransactions(): Promise<RelayerTransaction[]> {
+        this.builderCredsNeeded();
         return this.sendAuthedRequest(GET, GET_TRANSACTIONS);
     }
 
     public async getDeployed(address: string): Promise<boolean> {
-        const resp = await this.send(GET_DEPLOYED, GET, { params: { address } }) as GetDeployedResponse;
+        const resp = (await this.send(GET_DEPLOYED, GET, {
+            params: { address },
+        })) as GetDeployedResponse;
         return resp.deployed;
     }
 
     public async deployDepositWallet(): Promise<RelayerTransactionResponse> {
         this.signerNeeded();
+        this.builderCredsNeeded();
         const from = await this.signer!.getAddress();
         const depositWalletConfig = this.contractConfig.DepositWalletContracts;
         if (!isDepositWalletContractConfigValid(depositWalletConfig)) {
@@ -87,7 +94,11 @@ export class RelayClient {
         }
 
         const request = buildDepositWalletCreateRequest(from, depositWalletConfig);
-        const resp = await this.sendAuthedRequest(POST, SUBMIT_TRANSACTION, JSON.stringify(request));
+        const resp = await this.sendAuthedRequest(
+            POST,
+            SUBMIT_TRANSACTION,
+            JSON.stringify(request),
+        );
         return new ClientRelayerTransactionResponse(
             resp.transactionID,
             resp.state,
@@ -102,6 +113,7 @@ export class RelayClient {
         deadline: string,
     ): Promise<RelayerTransactionResponse> {
         this.signerNeeded();
+        this.builderCredsNeeded();
         if (calls.length === 0) {
             throw new Error("no deposit wallet calls to execute");
         }
@@ -128,7 +140,11 @@ export class RelayClient {
             depositWalletConfig,
         );
 
-        const resp = await this.sendAuthedRequest(POST, SUBMIT_TRANSACTION, JSON.stringify(request));
+        const resp = await this.sendAuthedRequest(
+            POST,
+            SUBMIT_TRANSACTION,
+            JSON.stringify(request),
+        );
         return new ClientRelayerTransactionResponse(
             resp.transactionID,
             resp.state,
@@ -144,7 +160,11 @@ export class RelayClient {
             throw CONFIG_UNSUPPORTED_ON_CHAIN;
         }
         const address = await this.signer!.getAddress();
-        return deriveDepositWallet(address, config.DepositWalletFactory, config.DepositWalletImplementation);
+        return deriveDepositWallet(
+            address,
+            config.DepositWalletFactory,
+            config.DepositWalletImplementation,
+        );
     }
 
     public async deriveDepositWalletAddress(): Promise<string> {
@@ -175,11 +195,7 @@ export class RelayClient {
         return undefined;
     }
 
-    private async sendAuthedRequest(
-        method: string,
-        path: string,
-        body?: string,
-    ): Promise<any> {
+    private async sendAuthedRequest(method: string, path: string, body?: string): Promise<any> {
         if (this.canBuilderAuth()) {
             const builderHeaders = await this._generateBuilderHeaders(method, path, body);
             if (builderHeaders !== undefined) {
@@ -187,7 +203,7 @@ export class RelayClient {
             }
         }
 
-        return this.send(path, method, { data: body });
+        throw BUILDER_CREDS_UNAVAILABLE;
     }
 
     private async _generateBuilderHeaders(
@@ -205,11 +221,7 @@ export class RelayClient {
         return this.builderConfig !== undefined && this.builderConfig.isValid();
     }
 
-    private async send(
-        endpoint: string,
-        method: string,
-        options?: RequestOptions,
-    ): Promise<any> {
+    private async send(endpoint: string, method: string, options?: RequestOptions): Promise<any> {
         const resp = await this.httpClient.send(`${this.relayerUrl}${endpoint}`, method, options);
         return resp.data;
     }
@@ -217,6 +229,12 @@ export class RelayClient {
     private signerNeeded(): void {
         if (this.signer === undefined) {
             throw SIGNER_UNAVAILABLE;
+        }
+    }
+
+    private builderCredsNeeded(): void {
+        if (!this.canBuilderAuth()) {
+            throw BUILDER_CREDS_UNAVAILABLE;
         }
     }
 }

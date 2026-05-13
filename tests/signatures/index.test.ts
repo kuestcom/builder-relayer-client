@@ -1,8 +1,14 @@
 import { expect } from "chai";
 import { Wallet } from "ethers";
 
-import { buildDepositWalletBatchRequest, buildDepositWalletCreateRequest, deriveDepositWallet } from "../../src/builder";
+import { RelayClient } from "../../src/client";
+import {
+    buildDepositWalletBatchRequest,
+    buildDepositWalletCreateRequest,
+    deriveDepositWallet,
+} from "../../src/builder";
 import { getContractConfig } from "../../src/config";
+import { BUILDER_CREDS_UNAVAILABLE } from "../../src/errors";
 import { createAbstractSigner } from "../../src/signer";
 import { TransactionType } from "../../src/types";
 
@@ -12,7 +18,10 @@ describe("deposit wallet relayer requests", () => {
     const owner = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     const wallet = new Wallet(privateKey);
     const config = getContractConfig(chainId).DepositWalletContracts;
-    const legacyPattern = new RegExp(["SA" + "FE", "PRO" + "XY", "relay" + "-payload"].join("|"), "i");
+    const legacyPattern = new RegExp(
+        ["SA" + "FE", "PRO" + "XY", "relay" + "-payload"].join("|"),
+        "i",
+    );
 
     it("builds wallet-create requests only", () => {
         const request = buildDepositWalletCreateRequest(owner, config);
@@ -24,7 +33,11 @@ describe("deposit wallet relayer requests", () => {
     });
 
     it("derives deposit wallet addresses from current config", () => {
-        const address = deriveDepositWallet(owner, config.DepositWalletFactory, config.DepositWalletImplementation);
+        const address = deriveDepositWallet(
+            owner,
+            config.DepositWalletFactory,
+            config.DepositWalletImplementation,
+        );
 
         expect(address).match(/^0x[0-9a-fA-F]{40}$/);
         expect(address).equal("0x053258Cfb6124a089363F89dA04b2eFa39b34e2d");
@@ -32,7 +45,11 @@ describe("deposit wallet relayer requests", () => {
 
     it("signs wallet batch requests", async () => {
         const signer = createAbstractSigner(chainId, wallet);
-        const walletAddress = deriveDepositWallet(owner, config.DepositWalletFactory, config.DepositWalletImplementation);
+        const walletAddress = deriveDepositWallet(
+            owner,
+            config.DepositWalletFactory,
+            config.DepositWalletImplementation,
+        );
         const request = await buildDepositWalletBatchRequest(
             signer,
             {
@@ -58,5 +75,23 @@ describe("deposit wallet relayer requests", () => {
         expect(request.depositWalletParams.depositWallet).equal(walletAddress);
         expect(request.signature).match(/^0x[0-9a-fA-F]+$/);
         expect(JSON.stringify(request)).not.match(legacyPattern);
+    });
+
+    it("rejects authenticated relayer submissions without builder credentials", async () => {
+        const client = new RelayClient("https://relayer.example", chainId, wallet);
+
+        try {
+            await client.deployDepositWallet();
+            throw new Error("expected deployDepositWallet to reject");
+        } catch (err) {
+            expect((err as Error).message).equal(BUILDER_CREDS_UNAVAILABLE.message);
+        }
+
+        try {
+            await client.getTransactions();
+            throw new Error("expected getTransactions to reject");
+        } catch (err) {
+            expect((err as Error).message).equal(BUILDER_CREDS_UNAVAILABLE.message);
+        }
     });
 });
