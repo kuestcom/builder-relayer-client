@@ -1,4 +1,7 @@
-# Kuest Builder Relayer Client
+<h1 align="center">
+  <img src="https://github.com/user-attachments/assets/0cc687fb-89c4-43fa-a056-d89c307215ad" alt="Kuest" height="96" /><br/>
+  Kuest Typescript Builder Relayer Client
+</h1>
 
 TypeScript wallet-only client for the Kuest relayer.
 
