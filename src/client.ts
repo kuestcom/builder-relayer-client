@@ -1,5 +1,4 @@
-import { Wallet } from "@ethersproject/wallet";
-import { JsonRpcSigner } from "@ethersproject/providers";
+import { JsonRpcSigner, Wallet } from "ethers";
 import { WalletClient } from "viem";
 import { BuilderConfig, BuilderHeaderPayload } from "@kuestcom/builder-signing-sdk";
 import { createAbstractSigner, IAbstractSigner } from "./signer";
