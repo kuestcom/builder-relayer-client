@@ -24,6 +24,9 @@ export function createAbstractSigner(_chainId: number, signer: any): IAbstractSi
                 return signer._signTypedData(domain, types, value);
             }
             if (typeof signer.signTypedData === "function") {
+                if (signer.signTypedData.length >= 3) {
+                    return signer.signTypedData(domain, types, value);
+                }
                 return signer.signTypedData({
                     account: signer.account,
                     domain,
