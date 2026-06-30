@@ -162,7 +162,7 @@ export class RelayClient {
         return deriveDepositWallet(
             address,
             config.DepositWalletFactory,
-            config.DepositWalletImplementation,
+            config.DepositWalletBeacon,
         );
     }
 

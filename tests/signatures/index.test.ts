@@ -36,11 +36,11 @@ describe("deposit wallet relayer requests", () => {
         const address = deriveDepositWallet(
             owner,
             config.DepositWalletFactory,
-            config.DepositWalletImplementation,
+            config.DepositWalletBeacon,
         );
 
         expect(address).match(/^0x[0-9a-fA-F]{40}$/);
-        expect(address).equal("0x053258Cfb6124a089363F89dA04b2eFa39b34e2d");
+        expect(address).equal("0xF3ab66D34F0B14C9a4f8564Ec8baaBBf51ad0Fd6");
     });
 
     it("signs wallet batch requests", async () => {
@@ -48,7 +48,7 @@ describe("deposit wallet relayer requests", () => {
         const walletAddress = deriveDepositWallet(
             owner,
             config.DepositWalletFactory,
-            config.DepositWalletImplementation,
+            config.DepositWalletBeacon,
         );
         const request = await buildDepositWalletBatchRequest(
             signer,
