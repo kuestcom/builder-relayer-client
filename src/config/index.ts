@@ -1,5 +1,6 @@
 export interface DepositWalletContractConfig {
     DepositWalletFactory: string;
+    DepositWalletBeacon: string;
     DepositWalletImplementation: string;
 }
 
@@ -8,8 +9,9 @@ export interface ContractConfig {
 }
 
 const DEPOSIT_WALLET_CONFIG: DepositWalletContractConfig = {
-    DepositWalletFactory: "0x3DaBe8f032833CE42CC26d9149660E6f596759C5",
-    DepositWalletImplementation: "0xFB2f5D822Ecb062dE63a7B830C5e83C994698851",
+    DepositWalletFactory: "0x2CcdC6C5dDcd895aFcCD259F291de9b618A5cA6c",
+    DepositWalletBeacon: "0x74a618eBdd62Ff8579A8FE94f5B888d7623b9C35",
+    DepositWalletImplementation: "0xf9dFAe108bF7d7aaa9E6D8c1aB281c6285BAF86c",
 };
 
 const AMOY: ContractConfig = {
@@ -23,7 +25,7 @@ const POLYGON: ContractConfig = {
 export function isDepositWalletContractConfigValid(
     config: DepositWalletContractConfig,
 ): boolean {
-    return !!config.DepositWalletFactory && !!config.DepositWalletImplementation;
+    return !!config.DepositWalletFactory && !!config.DepositWalletBeacon;
 }
 
 export const getContractConfig = (chainId: number): ContractConfig => {
