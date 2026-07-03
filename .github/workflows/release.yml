@@ -44,11 +44,5 @@ jobs:
       - run: pnpm test
       - run: pnpm build
 
-      - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-          fi
-          npm publish --access public --provenance
+      - name: Publish to npm (OIDC)
+        run: npm publish --access public --provenance
