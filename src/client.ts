@@ -198,7 +198,7 @@ export class RelayClient {
         if (this.canBuilderAuth()) {
             const builderHeaders = await this._generateBuilderHeaders(method, path, body);
             if (builderHeaders !== undefined) {
-                return this.send(path, method, { headers: builderHeaders, data: body });
+                return this.send(path, method, { headers: { ...builderHeaders }, data: body });
             }
         }
 

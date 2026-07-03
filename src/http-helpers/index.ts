@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestHeaders, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse, RawAxiosRequestHeaders } from "axios";
 
 export const GET = "GET";
 export const POST = "POST";
@@ -9,7 +9,7 @@ export const PUT = "PUT";
 export type QueryParams = Record<string, any>;
 
 export interface RequestOptions {
-    headers?: AxiosRequestHeaders;
+    headers?: RawAxiosRequestHeaders;
     data?: any;
     params?: QueryParams;
 }
@@ -29,7 +29,7 @@ export class HttpClient {
     ): Promise<AxiosResponse> {
         const headers = {
             ...(options?.headers ?? {}),
-        } as AxiosRequestHeaders;
+        } as RawAxiosRequestHeaders;
         if (Object.keys(headers).length > 0) {
             headers["Access-Control-Allow-Credentials"] = true;
         }

@@ -9,6 +9,8 @@
   ],
   "typeRoots": ["node_modules/@types"],
   "compilerOptions": {
-      "sourceMap": false
+    "rootDir": "./src",
+    "sourceMap": false,
+    "ignoreDeprecations": "6.0"
   }
 }
