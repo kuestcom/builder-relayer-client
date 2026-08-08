@@ -41,6 +41,8 @@ await client.executeDepositWalletBatch(
 - `deriveDepositWallet`
 - `deployDepositWallet`
 - `executeDepositWalletBatch`
+
+Resolution Rewards helpers build DepositWallet calls without changing the relayer endpoint: `buildResolutionRewardProposalCalls` returns the atomic USDC approve + proposal pair, while withdrawal, lazy release, permissionless sync and claim helpers each return one signed-batch call. Claims have no recipient argument, so the contract always pays the originating DepositWallet.
 - `getNonce`
 - `getDeployed`
 - `getTransaction`
