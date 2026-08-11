@@ -38,7 +38,7 @@ const LOG_PATH = process.env.MASS_TEST_LOG || resolve(
 const CONTRACTS = {
     collateral: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
     conditionalTokens: "0x4682048725865bf17067bd85fF518527A262A9C7",
-    exchange: "0xaCd95F4F42322c7bE215C170362EEc57Ef4E78c2",
+    exchange: "0xaa1b8dE834E16eC69C044F5300041673C968c9eF",
 } as const;
 
 const erc20Abi = [
