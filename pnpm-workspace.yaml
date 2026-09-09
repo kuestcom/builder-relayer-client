@@ -3,3 +3,5 @@ allowBuilds:
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - '@kuestcom/builder-signing-sdk@2.0.2'
+overrides:
+  esbuild: 0.28.2
