@@ -25,7 +25,7 @@ const builderConfig = new BuilderConfig({
   },
 });
 
-const client = new RelayClient(process.env.RELAYER_URL!, 80002, wallet, builderConfig);
+const client = new RelayClient(process.env.RELAYER_URL!, 137, wallet, builderConfig);
 const walletAddress = await client.deriveDepositWallet();
 
 await client.deployDepositWallet();

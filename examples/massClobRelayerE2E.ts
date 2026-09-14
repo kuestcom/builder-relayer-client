@@ -19,12 +19,12 @@ import {
     zeroHash,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { polygonAmoy } from "viem/chains";
+import { polygon } from "viem/chains";
 
-const CHAIN_ID = 80002;
+const CHAIN_ID = 137;
 const CLOB_URL = process.env.CLOB_URL || "https://clob.kuest.com";
 const RELAYER_URL = process.env.RELAYER_URL || "https://relayer.kuest.com";
-const RPC_URL = process.env.RPC_URL || "https://polygon-amoy.drpc.org";
+const RPC_URL = process.env.RPC_URL || "https://polygon.drpc.org";
 const SPLIT_AMOUNT_USDC = Number(process.env.MASS_SPLIT_USDC || "100");
 const SPLIT_AMOUNT = BigInt(Math.round(SPLIT_AMOUNT_USDC * 1_000_000));
 const POLL_MS = Number(process.env.MASS_POLL_MS || "1500");
@@ -36,7 +36,7 @@ const LOG_PATH = process.env.MASS_TEST_LOG || resolve(
 );
 
 const CONTRACTS = {
-    collateral: "0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582",
+    collateral: "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
     conditionalTokens: "0x4682048725865bf17067bd85fF518527A262A9C7",
     exchange: "0xaa1b8dE834E16eC69C044F5300041673C968c9eF",
 } as const;
@@ -125,7 +125,7 @@ type TrackedOrder = {
 };
 
 const publicClient = createPublicClient({
-    chain: polygonAmoy,
+    chain: polygon,
     transport: http(RPC_URL, { timeout: 15_000, retryCount: 2 }),
 });
 
@@ -225,7 +225,7 @@ async function initializeWallet(name: string): Promise<WalletContext> {
     const account = privateKeyToAccount(privateKey(name));
     const signer = createWalletClient({
         account,
-        chain: polygonAmoy,
+        chain: polygon,
         transport: http(RPC_URL, { timeout: 15_000, retryCount: 2 }),
     });
 
